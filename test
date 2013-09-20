@@ -1,0 +1,13 @@
+#!/bin/bash
+
+[ -n "$DEBUG" ] && set -o xtrace
+set -o nounset
+shopt -s nullglob
+
+if [ -f logs/nginx.pid ]
+  then
+    sudo rm logs/error.log
+    kill -s QUIT $(cat logs/nginx.pid)
+fi
+nx -p `pwd` -c sample.conf
+curl http://first-box-1-13.nitrous.local:9999
