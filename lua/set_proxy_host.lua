@@ -8,6 +8,9 @@ local function parseHost(host)
 
   for splitHost, port in string.gmatch(host, "(%S+):(%S+)") do
     output.port = port
+    -- FIXME: This will not work in production
+    -- production urls would look like http://test-29911.apse1.actionbox.io:3000/
+    -- also some people wanted app specific subdomains - http://usernmae.test-29911.apse1.actionbox.io:3000
     for boxName, domain, tld in string.gmatch(splitHost, "(%S+)%.(%S+)%.(%S+)") do
       output.boxName = boxName
     end
@@ -27,7 +30,6 @@ redisClient:set_timeout(1000)
 
 local ok, err = redisClient:connect(redisHost, redisPort)
 if not ok then
-  -- respond with an 500 status
   ngx.log(ngx.ERR, 'Failed to conect to Redis: ', err)
   ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
   return
