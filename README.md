@@ -1,4 +1,4 @@
-How to setup in the Development Environment:
+## How to setup in the Development Environment:
 
 * Download OpenResty - http://openresty.org/download/ngx_openresty-1.4.2.8.tar.gz (or latest stable)
 * Build and install OpenResty:
@@ -11,7 +11,8 @@ How to setup in the Development Environment:
 ```
 
 * Append OpenResty's Nginx path to PATH
-PATH=$PATH:$HOME/openresty/nginx/sbin
+
+    PATH=$PATH:$HOME/openresty/nginx/sbin
 
 (If you already have a system-wide Nginx installation, better to symlink the OpenResty's Nginx to something like `nx`)
 
