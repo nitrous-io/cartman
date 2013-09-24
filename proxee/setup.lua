@@ -1,6 +1,6 @@
-redis = require 'resty.redis'
-cjson = require 'cjson'
-lru_cache = require 'proxee.lru_cache'
+local redis = require 'resty.redis'
+local cjson = require 'cjson'
+local lru_cache = require 'proxee.lru_cache'
 
 local null = ngx.null
 
