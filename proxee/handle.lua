@@ -28,7 +28,7 @@ local box, err = getBox(parsed_host.box_name)
 if box ~= nil then
   custom_proxy_host = string.format('http://%s:%s', box.ip, port)
 else
-  ngx.log(ngx.WARN, 'Box details was not found: ', err)
+  ngx.log(ngx.WARN, 'Box details were not found: ', err)
   ngx.exit(ngx.HTTP_SERVICE_UNAVAILABLE)
   return
 end

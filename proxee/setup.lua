@@ -30,13 +30,11 @@ local function connect_to_redis()
 end
 
 function getBox(name)
-  -- try to fetch from cache
   item = cache:get(name)
   if item then
     return item, nil
   end
 
-  -- if it's a miss, fetch from redis
   local redis_client = connect_to_redis()
   local response, err = redis_client:hget('aio:boxes', name)
   if response ~= null then
