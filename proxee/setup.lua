@@ -29,6 +29,12 @@ local function connect_to_redis()
   end
 end
 
+local function keepalive_redis(client)
+  -- use default keepalive values for now
+  -- optimize it later
+  client:set_keepalive()
+end
+
 function getBox(name)
   item = cache:get(name)
   if item then
@@ -44,4 +50,6 @@ function getBox(name)
   else
     return nil, err
   end
+
+  keepalive_redis(redis_client)
 end
