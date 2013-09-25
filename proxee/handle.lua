@@ -1,23 +1,6 @@
-local function parse_host(host)
-  local output = {}
+local utils = require 'proxee.utils'
 
-  for split_host, port in string.gmatch(host, "(%S+):(%S+)") do
-    output.port = port
-    -- FIXME: This will not work in production
-    -- production urls would look like http://test-29911.apse1.actionbox.io:3000/
-    -- grab the box host
-    -- first subdomain infront of it should be considered as the boxname
-    for box_name, domain, tld in string.gmatch(split_host, "(%S+)%.(%S+)%.(%S+)") do
-      output.box_name = box_name
-    end
-  end
-
-  return output
-end
-
--- get subdomain from the host name
-local host = ngx.req.get_headers()["Host"]
-local parsed_host = parse_host(host)
+local parsed_host = utils.get_parsed_host(ngx.var.host, ngx.var.hostname)
 local custom_proxy_host = ''
 
 -- check if theres an explicit port mentioned
