@@ -2,6 +2,14 @@ local _M = {}
 
 local decode_base64 = ngx.decode_base64
 
+local function get_port(subdomain)
+  for port in string.gmatch(subdomain, "p(%d+)$") do
+    return tonumber(port, 10)
+  end
+
+  return nil
+end
+
 function _M.parse_host(host, hostname)
   local output = {}
 
@@ -16,6 +24,13 @@ function _M.parse_host(host, hostname)
       end
 
       output.box_name = table.remove(subdomains)
+
+      -- try removing the next last element from subdomains table
+      -- to see if user has set a port on it.
+      local next_subdomain = table.remove(subdomains)
+      if next_subdomain then
+        output.port = get_port(next_subdomain)
+      end
     end
   end
 

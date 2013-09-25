@@ -16,6 +16,16 @@ describe("Utils", function()
       assert.same("box-name", result.box_name)
     end)
 
+    it("returns the port if it defined as a subdomain", function()
+      result = utils.parse_host('p4444.box-name.region.boxhost.com', 'region.boxhost.com')
+      assert.same(4444, result.port)
+    end)
+
+    it("returns the port as nil if it is not defined as a subdomain", function()
+      result = utils.parse_host('p1sbd.box-name.region.boxhost.com', 'region.boxhost.com')
+      assert.same(nil, result.port)
+    end)
+
     it("returns nil when there are no subdomains", function()
       result = utils.parse_host('region.boxhost.com', 'region.boxhost.com')
       assert.same(nil, result.box_name)
