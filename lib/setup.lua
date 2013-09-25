@@ -6,21 +6,18 @@ local redis_client = require 'redis_client'
 
 local null = ngx.null
 
-local lru_cache_max = 100
-local lru_cache_max_age = 10000
+local lru_cache_max = tonumber(os.getenv('LRU_CACHE_MAX'), 10)
+local lru_cache_max_age = tonumber(os.getenv('LRU_CACHE_MAX_AGE'), 10)
 
--- FIXME: Load Redis settings from ENV variables
--- local redisHost = os.getenv('REDIS_HOST')
--- local redisPort = os.getenv('REDIS_PORT')
-
-local redis_host = '127.0.0.1'
-local redis_port = 6379
+local redis_host = os.getenv('REDIS_HOST')
+local redis_port = tonumber(os.getenv('REDIS_PORT'), 10)
 
 local cache = lru_cache:new(lru_cache_max, lru_cache_max_age)
 
 function get_box(name)
   item = cache:get(name)
   if item then
+    ngx.log(ngx.ERR, 'got item from cache')
     return item, nil
   end
 
@@ -33,6 +30,7 @@ function get_box(name)
   local response, err = redis_conn:hget('aio:boxes', name)
   if response ~= null then
     item = cjson.decode(response)
+    ngx.log(ngx.ERR, 'got item from redis')
     cache:set(name, item)
     return item, nil
   else
