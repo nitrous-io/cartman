@@ -24,7 +24,7 @@ function get_box(name)
   local redis_conn, err = redis_client.connect(redis_host, redis_port)
 
   if err then
-    ngx.log(ngx.ERR, 'Failed to conect to Redis: ', err)
+    ngx.log(ngx.ERR, 'Failed to connect to Redis: ', err)
   end
 
   local response, err = redis_conn:hget('aio:boxes', name)

@@ -16,7 +16,10 @@
 
 (If you already have a system-wide Nginx installation, better to symlink the OpenResty's Nginx to something like `nx`)
 
-* Switch to project directory and run `script/server` to start a Nginx server with the sample config.
+* Switch to project directory;
+  `export $(cat .env) && script/server`
+
+This will start a Nginx server with the sample config avialble in (`config/nginx.conf`).
 
 ### Testing
 
@@ -26,6 +29,7 @@
 
 * Install `busted`
   
-    sudo luarocks install busted
+    luarocks install busted
+
 
 
