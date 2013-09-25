@@ -25,7 +25,7 @@ end
 function _M.valid_auth(header, username, password)
   local result = false
 
-  if username and password then
+  if header and username and password then
     for hash_type, hash in string.gmatch(header, "(%w+) (%w+)") do
       if hash_type and hash_type == "Basic" then
         decoded_hash = decode_base64(hash)

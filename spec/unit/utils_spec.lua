@@ -39,6 +39,11 @@ describe("Utils", function()
   end)
 
   describe(".valid_auth", function()
+    it("returns false if header is not provided", function()
+      result = utils.valid_auth(nil, "username", "password")
+      assert.same(false, result)
+    end)
+
     it("returns false when header type is not Basic", function()
       result = utils.valid_auth("Someother dXNlcjpwYXNzd29yZA==\n", "username", "password")
       assert.same(false, result)
