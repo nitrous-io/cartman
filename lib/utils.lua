@@ -1,13 +1,13 @@
 local _M = {}
 
-function _M.get_parsed_host(host, hostname)
+function _M.parse_host(host, hostname)
   local output = {}
 
   local subdomains = {}
-  local hostname_start = string.find(host, hostname, 0, true)
-  local subdomains_portion = string.sub(host, 0, (hostname_start - 1))
+  local start_of_hostname = string.find(host, hostname, 0, true)
 
-  if subdomains_portion then
+  if start_of_hostname then
+    local subdomains_portion = string.sub(host, 0, (start_of_hostname - 1))
     for subdomain in string.gmatch(subdomains_portion, "([^%.]+)%.") do
       table.insert(subdomains, subdomain)
     end

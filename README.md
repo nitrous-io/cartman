@@ -17,3 +17,15 @@
 (If you already have a system-wide Nginx installation, better to symlink the OpenResty's Nginx to something like `nx`)
 
 * Switch to project directory and run `script/server` to start a Nginx server with the sample config.
+
+### Testing
+
+* Install `luarocks`
+    
+    sudo apt-get install luarocks
+
+* Install `busted`
+  
+    sudo luarocks install busted
+
+

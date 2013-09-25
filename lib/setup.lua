@@ -1,6 +1,8 @@
+package.path = './lib/?.lua;'..package.path
+
 local redis = require 'resty.redis'
 local cjson = require 'cjson'
-local lru_cache = require 'proxee.lru_cache'
+local lru_cache = require 'lru_cache'
 
 local null = ngx.null
 
@@ -35,7 +37,7 @@ local function keepalive_redis(client)
   client:set_keepalive()
 end
 
-function getBox(name)
+function get_box(name)
   item = cache:get(name)
   if item then
     return item, nil
