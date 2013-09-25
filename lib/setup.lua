@@ -1,41 +1,22 @@
 package.path = './lib/?.lua;'..package.path
 
-local redis = require 'resty.redis'
 local cjson = require 'cjson'
 local lru_cache = require 'lru_cache'
+local redis_client = require 'redis_client'
 
 local null = ngx.null
 
 local lru_cache_max = 100
 local lru_cache_max_age = 10000
 
+-- FIXME: Load Redis settings from ENV variables
+-- local redisHost = os.getenv('REDIS_HOST')
+-- local redisPort = os.getenv('REDIS_PORT')
+
+local redis_host = '127.0.0.1'
+local redis_port = 6379
+
 local cache = lru_cache:new(lru_cache_max, lru_cache_max_age)
-
-local function connect_to_redis()
-  local redis_client = redis:new()
-
-  -- FIXME: Load Redis settings from ENV variables
-  -- local redisHost = os.getenv('REDIS_HOST')
-  -- local redisPort = os.getenv('REDIS_PORT')
-
-  local redis_host = '127.0.0.1'
-  local redis_port = 6379
-
-  redis_client:set_timeout(1000)
-
-  local ok, err = redis_client:connect(redis_host, redis_port)
-  if not ok then
-    ngx.log(ngx.ERR, 'Failed to conect to Redis: ', err)
-  else
-    return redis_client
-  end
-end
-
-local function keepalive_redis(client)
-  -- use default keepalive values for now
-  -- optimize it later
-  client:set_keepalive()
-end
 
 function get_box(name)
   item = cache:get(name)
@@ -43,8 +24,13 @@ function get_box(name)
     return item, nil
   end
 
-  local redis_client = connect_to_redis()
-  local response, err = redis_client:hget('aio:boxes', name)
+  local redis_conn, err = redis_client.connect(redis_host, redis_port)
+
+  if err then
+    ngx.log(ngx.ERR, 'Failed to conect to Redis: ', err)
+  end
+
+  local response, err = redis_conn:hget('aio:boxes', name)
   if response ~= null then
     item = cjson.decode(response)
     cache:set(name, item)
@@ -53,5 +39,5 @@ function get_box(name)
     return nil, err
   end
 
-  keepalive_redis(redis_client)
+  redis_client.keepalive(redis_conn)
 end
