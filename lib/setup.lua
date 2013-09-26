@@ -11,26 +11,27 @@ local lru_cache_max_age = tonumber(os.getenv('LRU_CACHE_MAX_AGE'), 10)
 
 local redis_host = os.getenv('REDIS_HOST')
 local redis_port = tonumber(os.getenv('REDIS_PORT'), 10)
+local redis_password = os.getenv('REDIS_PASSWORD')
+local redis_db = os.getenv('REDIS_DB')
 
 local cache = lru_cache:new(lru_cache_max, lru_cache_max_age)
 
 function get_box(name)
   item = cache:get(name)
   if item then
-    ngx.log(ngx.ERR, 'got item from cache')
     return item, nil
   end
 
-  local redis_conn, err = redis_client.connect(redis_host, redis_port)
+  local redis_conn, err = redis_client.connect(redis_host, redis_port, redis_password, redis_db)
 
   if err then
     ngx.log(ngx.ERR, 'Failed to connect to Redis: ', err)
+    return
   end
 
   local response, err = redis_conn:hget('aio:boxes', name)
   if response ~= null then
     item = cjson.decode(response)
-    ngx.log(ngx.ERR, 'got item from redis')
     cache:set(name, item)
     return item, nil
   else
