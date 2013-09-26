@@ -1,7 +1,6 @@
 #!/bin/bash
 
 [ -n "$DEBUG" ] && set -o xtrace
-set -o nounset
 shopt -s nullglob
 
 if [ -f logs/nginx.pid ]
@@ -9,4 +8,15 @@ if [ -f logs/nginx.pid ]
     sudo rm logs/error.log
     kill -s QUIT $(cat logs/nginx.pid)
 fi
-nx -p `pwd` -c ${1:-config/nginx.conf}
+
+CONFIG="config/nginx.conf"
+
+if [ "$1" != "stop" ]; then
+  while getopts ":c:" option; do
+    case "${option}" in
+      c) CONFIG=${OPTARG};;
+    esac
+  done
+
+  nx -p `pwd` -c $CONFIG
+fi
