@@ -5,9 +5,10 @@ local utils = require 'utils'
 local parsed_host = utils.parse_host(ngx.var.host, ngx.var.hostname)
 local custom_proxy_host = ''
 
--- check if theres an explicit port mentioned
--- if not use 3000 as the default port
-local port = parsed_host.port or 3000
+local port = ngx.var.server_port
+if port == 80 then
+  port = 3000
+end
 
 local box, err = get_box(parsed_host.box_name)
 if box ~= nil then
@@ -15,7 +16,8 @@ if box ~= nil then
   local password = box.authPassword
 
   if username and password then
-    if not utils.valid_auth(ngx.var.authorization, username, password) then
+    local authorization = ngx.req.get_headers()['Authorization']
+    if not utils.valid_auth(authorization, username, password) then
       ngx.header["WWW-Authenticate"] = 'Basic realm="Proctected Box"'
       ngx.exit(ngx.HTTP_UNAUTHORIZED)
     end
