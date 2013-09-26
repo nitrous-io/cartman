@@ -10,4 +10,3 @@ function ngx.decode_base64(string)
     return "username:password"
   end
 end
-

@@ -23,6 +23,15 @@ This will start a Nginx server with the sample config avialble in (`config/nginx
 
 ### Testing
 
+**Integration testing**
+
+* Run:
+    sh spec/integration/proxee_spec.sh
+
+*Note* You may need to update the name of Nginx in `script/server` depending on how it's exposed in PATH.
+
+** Unit testing **
+
 * Install `luarocks`
     
     sudo apt-get install luarocks
@@ -31,5 +40,6 @@ This will start a Nginx server with the sample config avialble in (`config/nginx
   
     luarocks install busted
 
-
-
+* Then on the project's root, run:
+    
+    busted
