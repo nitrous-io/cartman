@@ -5,8 +5,12 @@ shopt -s nullglob
 
 if [ -f logs/nginx.pid ]
   then
-    sudo rm logs/error.log
+    rm logs/error.log
     kill -s QUIT $(cat logs/nginx.pid)
+
+    if [ -f config.lua ]; then
+      rm config.lua
+    fi
 fi
 
 CONFIG="config/nginx.conf"
@@ -17,6 +21,19 @@ if [ "$1" != "stop" ]; then
       c) CONFIG=${OPTARG};;
     esac
   done
+
+  # prepare Lua config file
+  cat << EOF > config.lua
+  return {
+    lru_cache_max = $LRU_CACHE_MAX,
+    lru_cache_max_age = $LRU_CACHE_MAX_AGE,
+
+    redis_host = '$REDIS_HOST',
+    redis_port = $REDIS_PORT,
+    redis_password = $REDIS_PASSWORD,
+    redis_db = $REDIS_DB
+  }
+EOF
 
   nx -p `pwd` -c $CONFIG
 fi

@@ -3,18 +3,11 @@ package.path = './lib/?.lua;'..package.path
 local cjson = require 'cjson'
 local lru_cache = require 'lru_cache'
 local redis_client = require 'redis_client'
+local config = require 'config'
 
 local null = ngx.null
 
-local lru_cache_max = tonumber(os.getenv('LRU_CACHE_MAX'), 10)
-local lru_cache_max_age = tonumber(os.getenv('LRU_CACHE_MAX_AGE'), 10)
-
-local redis_host = os.getenv('REDIS_HOST')
-local redis_port = tonumber(os.getenv('REDIS_PORT'), 10)
-local redis_password = os.getenv('REDIS_PASSWORD')
-local redis_db = os.getenv('REDIS_DB')
-
-local cache = lru_cache:new(lru_cache_max, lru_cache_max_age)
+local cache = lru_cache:new(config.lru_cache_max, config.lru_cache_max_age)
 
 function get_box(name)
   item = cache:get(name)
@@ -22,7 +15,7 @@ function get_box(name)
     return item, nil
   end
 
-  local redis_conn, err = redis_client.connect(redis_host, redis_port, redis_password, redis_db)
+  local redis_conn, err = redis_client.connect(config.redis_host, config.redis_port, config.redis_password, config.redis_db)
 
   if err then
     ngx.log(ngx.ERR, 'Failed to connect to Redis: ', err)
