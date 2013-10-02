@@ -53,7 +53,7 @@ echo "\nCompleted the tests\n"
 
 # clean redis
 echo "Cleaning Redis"
-redis-cli -h $REDIS_HOST -p $REDIS_PORT -n $REDIS_DB flushall
+redis-cli -h $REDIS_HOST -p $REDIS_PORT -n $REDIS_DB flushdb
 
 # stop the server
 echo "Stopping Nginx"
