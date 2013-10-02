@@ -8,8 +8,8 @@ if [ -f logs/nginx.pid ]
     rm logs/error.log
     kill -s QUIT $(cat logs/nginx.pid)
 
-    if [ -f config.lua ]; then
-      rm config.lua
+    if [ -f settings.lua ]; then
+      rm settings.lua
     fi
 fi
 
@@ -23,7 +23,7 @@ if [ "$1" != "stop" ]; then
   done
 
   # prepare Lua config file
-  cat << EOF > config.lua
+  cat << EOF > settings.lua
   return {
     lru_cache_max = $LRU_CACHE_MAX,
     lru_cache_max_age = $LRU_CACHE_MAX_AGE,
