@@ -1,13 +1,18 @@
-# Proxee (as a Nginx module)
+# Proxee (as an Nginx module)
 
 ### How to setup in the Development Environment:
 
 * Download OpenResty - http://openresty.org/download/ngx_openresty-1.4.2.8.tar.gz (or latest stable)
+* Install dependencies:
+```
+apt-get install libreadline-dev libncurses5-dev libpcre3-dev libssl-dev perl make
+```
+
 * Build and install OpenResty:
 ```
   tar xzvf ngx_openresty-VERSION.tar.gz
   cd ngx-openresty-VERSION/
-  ./confgiure --with-luajit --prefix=/home/USERNAME/openresty
+  ./configure --with-luajit --prefix=/home/USERNAME/openresty
   make
   make install
 ```
@@ -20,27 +25,26 @@
 
 * Switch to project directory and run:
 ```
-  export $(cat .env) && script/server`
+  export $(cat .env) && script/server
 ```
-
-  This will start a Nginx server with the sample config avialble in (`config/nginx.conf`).
+  This will start an Nginx server with the sample config in `config/nginx.conf`.
+  *Note* You may need to update the name of Nginx in `script/server` depending on how it's exposed in `PATH`.
 
 ### Testing
 
 **Integration tests**
 
+* You may need to install `curl` first: `apt-get install curl`.
 * Run:
 ```
   sh spec/integration/proxee_spec.sh
 ```
 
-  *Note* You may need to update the name of Nginx in `script/server` depending on how it's exposed in `PATH`.
-
 **Unit testing**
 
-* Install busted
+* Install [busted](http://olivinelabs.com/busted/)
 ```
-  sudo apt-get install luarocks
+  apt-get install luarocks
   luarocks install busted
 ```
 
