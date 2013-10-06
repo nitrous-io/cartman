@@ -6,8 +6,8 @@ local box_name = utils.parse_host(ngx.var.host, ngx.var.hostname).box_name
 local custom_proxy_host = ''
 
 local port = ngx.var.server_port
-if port == 80 then
-  port = 3000
+if port == "80" then
+  port = "3000"
 end
 
 if box_name then
