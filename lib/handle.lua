@@ -6,7 +6,9 @@ local box_name = utils.parse_host(ngx.var.host, ngx.var.hostname).box_name
 local custom_proxy_host = ''
 
 local port = ngx.var.server_port
-if port == "80" then
+-- TODO: This must be covered in
+-- integration tests
+if port == "80" or port == "443" then
   port = "3000"
 end
 
