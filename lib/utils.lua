@@ -2,21 +2,21 @@ local _M = {}
 
 local decode_base64 = ngx.decode_base64
 
-function _M.parse_host(host, hostname)
-  local output = {}
+function _M.box_name_from_host(host, position)
+  local output = nil
+  -- position of the box subdomain
+  -- from right (0-indexed)
+  -- default value is 3 (eg. box-name.region.boxhost.com)
+  local position = position or 3
 
-  if host and hostname then
+  if host then
     local subdomains = {}
-    local start_of_hostname = string.find(host, hostname, 0, true)
-
-    if start_of_hostname then
-      local subdomains_portion = string.sub(host, 0, (start_of_hostname - 1))
-      for subdomain in string.gmatch(subdomains_portion, "([^%.]+)%.") do
-        table.insert(subdomains, subdomain)
-      end
-
-      output.box_name = table.remove(subdomains)
+    for subdomain in string.gmatch(host, "([^%.]+)%.") do
+      table.insert(subdomains, subdomain)
     end
+
+    local length = #subdomains
+    output = subdomains[length - (position - 1)]
   end
 
   return output

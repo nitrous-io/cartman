@@ -2,7 +2,7 @@ package.path = './lib/?.lua;'..package.path
 
 local utils = require 'utils'
 
-local box_name = utils.parse_host(ngx.var.host, ngx.var.hostname).box_name
+local box_name = utils.box_name_from_host(ngx.var.host)
 local custom_proxy_host = ''
 
 local port = ngx.var.server_port

@@ -8,7 +8,7 @@ HOSTNAME=`hostname`
 # add entry to redis hash
 echo "Preparing Redis database"
 BOX_DATA="{\"ip\":\"127.0.0.1\",\"name\":\"sample-box\"}"
-BOX_WITH_AUTH_DATA="{\"ip\":\"127.0.0.1\",\"authUsername\":\"user\",\"authPassword\":\"123\",\"name\":\"sample-box-auth\"}"
+BOX_WITH_AUTH_DATA="{\"ip\":\"127.0.0.1\",\"name\":\"sample-box-auth\",\"authUsername\":\"user\",\"authPassword\":\"123\"}"
 
 redis-cli -h $REDIS_HOST -p $REDIS_PORT -n $REDIS_DB hset aio:boxes sample-box "$BOX_DATA"
 redis-cli -h $REDIS_HOST -p $REDIS_PORT -n $REDIS_DB hset aio:boxes sample-box-auth "$BOX_WITH_AUTH_DATA"
