@@ -11,11 +11,11 @@ local port = ngx.var.server_port
 if box_name then
   local box, err = get_box(box_name)
   if box ~= nil then
-    local username = box.authUsername
-    local password = box.authPassword
+    local username = box.authUsername or cjson.null
+    local password = box.authPassword or cjson.null
     local paidUser = box.paidUser
 
-    if username and password then
+    if username ~= cjson.null and password ~= cjson.null then
       local authorization = ngx.req.get_headers()['Authorization']
       if not utils.valid_auth(authorization, username, password) then
         ngx.header["WWW-Authenticate"] = 'Basic realm="Proctected Box"'
