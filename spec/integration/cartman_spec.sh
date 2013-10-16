@@ -54,6 +54,23 @@ test `curl -sL -w "%{http_code}" http://sample-box-null-auth.$HOSTNAME:6000 -o /
 # proxy to server correctly if a box has enabled HTTP Auth and user provided valid credentials (200)
 test `curl -sL -w "%{http_code}" -u user:123 http://sample-box-auth.$HOSTNAME:6000 -o /dev/null` 200
 
+## test for the cache invalidation ##
+# make a request first, this will cache the box details
+curl -sL -u user:123 http://sample-box-auth.$HOSTNAME:6000 -o /dev/null
+
+# modify box details in redis
+BOX_WITH_MODIFIED_AUTH_DATA="{\"ip\":\"127.0.0.1\",\"name\":\"sample-box-auth\",\"authUsername\":\"user\",\"authPassword\":\"12345\"}"
+redis-cli -h $REDIS_HOST -p $REDIS_PORT -n $REDIS_DB hset aio:boxes sample-box-auth "$BOX_WITH_MODIFIED_AUTH_DATA"
+
+# send a request to clear the cached record
+curl -sL http://127.0.0.1:6002/invalidate_cache?id=sample-box-auth -o /dev/null
+
+# old password should give an auth error
+test `curl -sL -w "%{http_code}" -u user:123 http://sample-box-auth.$HOSTNAME:6000 -o /dev/null` 401
+
+# new password should work
+test `curl -sL -w "%{http_code}" -u user:12345 http://sample-box-auth.$HOSTNAME:6000 -o /dev/null` 200
+
 echo "\nCompleted the tests\n"
 
 # clean redis
