@@ -1,4 +1,12 @@
-# Proxee (as an Nginx module)
+# Cartman
+
+An Nginx extension (written in Lua), which proxies requests to boxes.
+
+Features:
+- Supports web sockets proxying
+- Basic HTTP Auth
+- Forwards SSL and port 80 traffic to port 3000
+- Caches box details for performance
 
 ### How to setup in the Development Environment:
 
@@ -37,7 +45,7 @@ apt-get install libreadline-dev libncurses5-dev libpcre3-dev libssl-dev perl mak
 * You may need to install `curl` first: `apt-get install curl`.
 * Run:
 ```
-  sh spec/integration/proxee_spec.sh
+  sh spec/integration/cartman_spec.sh
 ```
 
 **Unit testing**
