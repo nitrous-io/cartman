@@ -13,7 +13,7 @@ if box_name then
   if box ~= nil then
     local username = box.authUsername or cjson.null
     local password = box.authPassword or cjson.null
-    local paidUser = box.paidUser
+    local paidUser = box.paidUser or cjson.null
 
     if username ~= cjson.null and password ~= cjson.null then
       local authorization = ngx.req.get_headers()['Authorization']
@@ -25,8 +25,14 @@ if box_name then
 
     -- TODO: This must be covered in
     -- integration tests
-    if port == "80" or port == "443" then
-      if paidUser then
+    -- forward all port 80 traffic to port 3000
+    if port == "80" then
+      port = "3000"
+    end
+
+    -- forward port 443 traffic only if the user is a paid user
+    if port == "443" then
+      if paidUser ~= cjson.null then
         port = "3000"
       else
         -- don't allow access for free users
