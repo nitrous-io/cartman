@@ -101,4 +101,14 @@ function _M.get(self, key)
   end
 end
 
+function _M.del(self, key)
+  local entry = self.data[key]
+
+  if entry ~= nil then
+    _M.remove_entry(self, entry)
+  end
+
+  return nil
+end
+
 return _M
