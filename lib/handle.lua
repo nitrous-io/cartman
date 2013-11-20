@@ -13,7 +13,7 @@ if box_name then
   if box ~= nil then
     local username = box.authUsername or cjson.null
     local password = box.authPassword or cjson.null
-    local paidUser = box.paidUser or cjson.null
+    local premium = box.premium or cjson.null
 
     if username ~= cjson.null and password ~= cjson.null then
       local authorization = ngx.req.get_headers()['Authorization']
@@ -32,7 +32,9 @@ if box_name then
 
     -- forward port 443 traffic only if the user is a paid user
     if port == "443" then
-      if paidUser ~= cjson.null then
+      -- have to check for true explicitly
+      -- due to cjson.null and nil are 2 different values.
+      if premium == true then
         port = "3000"
       else
         -- don't allow access for free users
