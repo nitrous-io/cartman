@@ -3,21 +3,31 @@
 REDIS_HOST=127.0.0.1
 REDIS_PORT=6379
 REDIS_DB=5
-HOSTNAME=`hostname`
+HOSTNAME=region.dev-box.local
+
+# clean redis
+echo "Cleaning Redis"
+redis-cli -h $REDIS_HOST -p $REDIS_PORT -n $REDIS_DB flushdb
+
+# stop the server
+echo "Stopping Nginx"
+script/test_server stop
 
 # add entry to redis hash
 echo "Preparing Redis database"
 BOX_DATA="{\"ip\":\"127.0.0.1\",\"name\":\"sample-box\"}"
 BOX_WITH_AUTH_DATA="{\"ip\":\"127.0.0.1\",\"name\":\"sample-box-auth\",\"authUsername\":\"user\",\"authPassword\":\"123\"}"
 BOX_WITH_NULL_AUTH_DATA="{\"ip\":\"127.0.0.1\",\"name\":\"sample-box-null-auth\",\"authUsername\":null,\"authPassword\":null}"
+BOX_WITH_EMPTY_AUTH_DATA="{\"ip\":\"127.0.0.1\",\"name\":\"sample-box-null-auth\",\"authUsername\":\"\",\"authPassword\":\"\"}"
 
 redis-cli -h $REDIS_HOST -p $REDIS_PORT -n $REDIS_DB hset aio:boxes sample-box "$BOX_DATA"
 redis-cli -h $REDIS_HOST -p $REDIS_PORT -n $REDIS_DB hset aio:boxes sample-box-auth "$BOX_WITH_AUTH_DATA"
 redis-cli -h $REDIS_HOST -p $REDIS_PORT -n $REDIS_DB hset aio:boxes sample-box-null-auth "$BOX_WITH_NULL_AUTH_DATA"
+redis-cli -h $REDIS_HOST -p $REDIS_PORT -n $REDIS_DB hset aio:boxes sample-box-empty-auth "$BOX_WITH_EMPTY_AUTH_DATA"
 
 # start the sample nginx server with conf
 echo "Starting Nginx\n"
-script/server -c spec/integration/nginx.conf
+script/test_server -c spec/integration/nginx.conf
 
 echo "Running tests"
 
@@ -29,6 +39,9 @@ test () {
     echo "\nexpected HTTP status to be $2, got $1"
   fi
 }
+
+# proxy to a server that has empty auth username and password
+test `curl -sL -w "%{http_code}" http://sample-box-empty-auth.$HOSTNAME:6000 -o /dev/null` 200
 
 # proxy to a server running on a available box (200)
 test `curl -sL -w "%{http_code}" http://sample-box.$HOSTNAME:6000 -o /dev/null` 200
@@ -79,4 +92,4 @@ redis-cli -h $REDIS_HOST -p $REDIS_PORT -n $REDIS_DB flushdb
 
 # stop the server
 echo "Stopping Nginx"
-script/server stop
+script/test_server stop
