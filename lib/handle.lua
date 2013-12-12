@@ -19,12 +19,10 @@ if box_name then
       -- if the username and password be empty string, as using a value as both
       -- null and string is really a bad idea, then its the same as both values
       -- are null
-      if not (username == "" and password == "") then
-        local authorization = ngx.req.get_headers()['Authorization']
-        if not utils.valid_auth(authorization, username, password) then
-          ngx.header["WWW-Authenticate"] = 'Basic realm="Proctected Box"'
-          ngx.exit(ngx.HTTP_UNAUTHORIZED)
-        end
+      local authorization = ngx.req.get_headers()['Authorization']
+      if not utils.valid_auth(authorization, username, password) then
+        ngx.header["WWW-Authenticate"] = 'Basic realm="Proctected Box"'
+        ngx.exit(ngx.HTTP_UNAUTHORIZED)
       end
     end
 
