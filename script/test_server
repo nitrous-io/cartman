@@ -1,0 +1,34 @@
+#!/bin/bash
+[ -n "$DEBUG" ] && set -o xtrace
+shopt -s nullglob
+
+export $(cat .env)
+
+if [ -f logs/nginx.pid ]
+  then
+    kill -s QUIT $(cat logs/nginx.pid)
+fi
+
+CONFIG="config/nginx.conf"
+
+if [ "$1" != "stop" ]; then
+  while getopts ":c:" option; do
+    case "${option}" in
+      c) CONFIG=${OPTARG};;
+    esac
+  done
+
+  # prepare Lua config file
+  cat << EOF > settings.lua
+  return {
+    lru_cache_max = $LRU_CACHE_MAX,
+    lru_cache_max_age = $LRU_CACHE_MAX_AGE,
+
+    redis_host = '$REDIS_HOST',
+    redis_port = $REDIS_PORT,
+    redis_db = 5
+  }
+EOF
+
+  nx -p `pwd` -c $CONFIG
+fi
