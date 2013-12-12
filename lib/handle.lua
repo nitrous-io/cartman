@@ -7,7 +7,6 @@ local custom_proxy_host = ''
 
 local port = ngx.var.server_port
 
-
 if box_name then
   local box, err = get_box(box_name)
   if box ~= nil then
@@ -15,7 +14,11 @@ if box_name then
     local password = box.authPassword or cjson.null
     local premium = box.premium or cjson.null
 
+    -- FIXME: why cant these conditions be merged into utils.valid_auth
     if username ~= cjson.null and password ~= cjson.null then
+      -- if the username and password be empty string, as using a value as both
+      -- null and string is really a bad idea, then its the same as both values
+      -- are null
       local authorization = ngx.req.get_headers()['Authorization']
       if not utils.valid_auth(authorization, username, password) then
         ngx.header["WWW-Authenticate"] = 'Basic realm="Proctected Box"'

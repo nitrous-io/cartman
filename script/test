@@ -1,0 +1,8 @@
+#!/bin/bash
+[ -n "$DEBUG" ] && set -o xtrace
+shopt -s nullglob
+
+export $(cat .env)
+
+busted
+sh spec/integration/cartman_spec.sh

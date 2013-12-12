@@ -1,7 +1,8 @@
 #!/bin/bash
-
 [ -n "$DEBUG" ] && set -o xtrace
 shopt -s nullglob
+
+export $(cat .env)
 
 if [ -f logs/nginx.pid ]
   then

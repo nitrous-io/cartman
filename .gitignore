@@ -12,6 +12,7 @@ vendor/bundle/
 public/assets/
 config/database.coffee
 .env
+settings.lua
 
 # OSX
 .DS_Store

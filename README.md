@@ -51,7 +51,7 @@ apt-get install libreadline-dev libncurses5-dev libpcre3-dev libssl-dev perl mak
 
 * Switch to project directory and run:
 ```
-  export $(cat .env) && script/server
+  script/server
 ```
   This will start an Nginx server with the sample config in `config/nginx.conf`.
   *Note* You may need to update the name of Nginx in `script/server` depending on how it's exposed in `PATH`.

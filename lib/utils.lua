@@ -23,6 +23,10 @@ function _M.box_name_from_host(host, position)
 end
 
 function _M.valid_auth(header, username, password)
+  if username == "" and password == "" then
+    return true
+  end
+
   local result = false
 
   if header and username and password then
