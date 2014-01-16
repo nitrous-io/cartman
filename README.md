@@ -58,23 +58,15 @@ apt-get install libreadline-dev libncurses5-dev libpcre3-dev libssl-dev perl mak
 
 ### Testing
 
-**Integration tests**
-
-* You may need to install `curl` first: `apt-get install curl`.
-* Run:
-```
-  sh spec/integration/cartman_spec.sh
-```
-
-**Unit testing**
-
 * Install [busted](http://olivinelabs.com/busted/)
 ```
   apt-get install luarocks
   luarocks install busted
 ```
 
+* You may need to install `curl` too: `apt-get install curl`
+
 * Then on the project's root, run:
 ```
-  busted
+  script/test
 ```
