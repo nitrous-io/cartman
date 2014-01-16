@@ -41,8 +41,7 @@ if box_name then
         port = "3000"
       else
         -- don't allow access for free users
-        -- use a custom HTTP code, so we can show a unique error page.
-        ngx.exit(551)
+        ngx.exit(403)
       end
     end
 
