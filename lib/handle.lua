@@ -41,7 +41,7 @@ if box_name then
         port = "3000"
       else
         -- don't allow access for free users
-        ngx.exit(ngx.HTTP_SERVICE_UNAVAILABLE)
+        ngx.exit(ngx.HTTP_FORBIDDEN)
       end
     end
 
