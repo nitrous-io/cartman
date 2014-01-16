@@ -41,7 +41,8 @@ if box_name then
         port = "3000"
       else
         -- don't allow access for free users
-        ngx.exit(ngx.HTTP_SERVICE_UNAVAILABLE)
+        -- use a custom HTTP code, so we can show a unique error page.
+        ngx.exit(551)
       end
     end
 
