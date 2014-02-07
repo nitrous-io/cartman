@@ -7,6 +7,52 @@ local custom_proxy_host = ''
 
 local port = ngx.var.server_port
 
+function get_box(id)
+  item = cache:get(id)
+  if item then
+    return item, nil
+  end
+
+  local redis = require 'resty.redis'
+  local red = redis:new()
+
+  red:set_timeout(1000) -- 1 sec
+
+  -- estabilish connection to redis server
+  local ok, err = red:connect(settings.redis_host, settings.redis_port)
+  if err then
+    ngx.log(ngx.ERR, 'Failed to connect to Redis: ', err)
+    return
+  end
+
+  -- authenticate
+  if settings.redis_password ~= "" then
+    local ok, err = red:auth(settings.redis_password)
+    if err then
+      ngx.log(ngx.ERR, "Failed to authenticate: ", err)
+      return
+    end
+  end
+
+  -- select db
+  local ok, err = red:select(settings.redis_db)
+  if err then
+    ngx.log(ngx.ERR, "Failed to select db: ", err)
+    return
+  end
+
+  -- get box details, finally :)
+  local response, err = red:hget('aio:boxes', id)
+  if response ~= null then
+    item = cjson.decode(response)
+    cache:set(id, item)
+    return item, nil
+  else
+    return nil, err
+  end
+
+end
+
 if box_name then
   local box, err = get_box(box_name)
   if box ~= nil then

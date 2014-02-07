@@ -1,9 +1,9 @@
 #!/usr/env bash
 
-REDIS_HOST=127.0.0.1
-REDIS_PORT=6379
-REDIS_DB=5
+# explicitly set the hostname
 HOSTNAME=region.n2odev.com
+
+# Other ENV variables are loaded from .env file.
 
 # clean redis
 echo "Cleaning Redis"

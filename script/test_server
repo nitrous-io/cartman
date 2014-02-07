@@ -26,7 +26,8 @@ if [ "$1" != "stop" ]; then
 
     redis_host = '$REDIS_HOST',
     redis_port = $REDIS_PORT,
-    redis_db = 5
+    redis_password = '$REDIS_PASSWORD',
+    redis_db = $REDIS_DB
   }
 EOF
 
