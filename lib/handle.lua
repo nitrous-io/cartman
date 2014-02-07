@@ -1,21 +1,22 @@
 package.path = './lib/?.lua;'..package.path
 
+local cjson = require 'cjson'
 local utils = require 'utils'
 
-local box_name = utils.box_name_from_host(ngx.var.host)
-local custom_proxy_host = ''
-
-local port = ngx.var.server_port
+local settings = require 'settings'
+local cache = ngx.shared.cache
+local null = ngx.null
 
 function get_box(id)
-  item = cache:get(id)
-  if item then
-    return item, nil
+  -- try to fetch cached response from shared memory
+  local cached_response = cache:get(id)
+  if cached_response then
+    local box = cjson.decode(cached_response)
+    return box, nil
   end
 
   local redis = require 'resty.redis'
   local red = redis:new()
-
   red:set_timeout(1000) -- 1 sec
 
   -- estabilish connection to redis server
@@ -44,14 +45,18 @@ function get_box(id)
   -- get box details, finally :)
   local response, err = red:hget('aio:boxes', id)
   if response ~= null then
-    item = cjson.decode(response)
-    cache:set(id, item)
-    return item, nil
+    cache:set(id, response)
+    local box = cjson.decode(response)
+    return box, nil
   else
     return nil, err
   end
-
 end
+
+local box_name = utils.box_name_from_host(ngx.var.host)
+local port = ngx.var.server_port
+
+local custom_proxy_host = ''
 
 if box_name then
   local box, err = get_box(box_name)
