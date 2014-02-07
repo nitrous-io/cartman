@@ -1,11 +1,8 @@
 package.path = './lib/?.lua;'..package.path
 
-local cjson = require 'cjson'
 local utils = require 'utils'
 
-local settings = require 'settings'
 local cache = ngx.shared.cache
-local null = ngx.null
 
 function get_box(id)
   -- try to fetch cached response from shared memory
@@ -15,7 +12,6 @@ function get_box(id)
     return box, nil
   end
 
-  local redis = require 'resty.redis'
   local red = redis:new()
   red:set_timeout(1000) -- 1 sec
 
