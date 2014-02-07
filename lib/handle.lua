@@ -61,9 +61,16 @@ local custom_proxy_host = ''
 if box_name then
   local box, err = get_box(box_name)
   if box ~= nil then
+    local boxState = box.containerState
     local username = box.authUsername or cjson.null
     local password = box.authPassword or cjson.null
     local premium = box.premium or cjson.null
+
+    -- exit early if the box is not running
+    if boxState ~= 'running' then
+      ngx.log(ngx.ERR, 'Given box is not running: ', box_name)
+      ngx.exit(ngx.HTTP_SERVICE_UNAVAILABLE)
+    end
 
     -- FIXME: why cant these conditions be merged into utils.valid_auth
     if username ~= cjson.null and password ~= cjson.null then
