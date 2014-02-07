@@ -31,7 +31,7 @@ script/test_server -c spec/integration/nginx.conf
 
 echo "Running tests"
 
-test () {
+assert_status () {
   if [ "$1" -eq "$2" ]; then
     printf "."
   else
@@ -40,32 +40,45 @@ test () {
   fi
 }
 
+contains () {
+  if echo "$1" | fgrep -q "$2"; then
+    printf "."
+  else
+    printf "F"
+    echo "\nexpected $1 to contain $2"
+  fi
+}
+
 # proxy to a server that has empty auth username and password
-test `curl -sL -w "%{http_code}" http://sample-box-empty-auth.$HOSTNAME:6000 -o /dev/null` 200
+assert_status `curl -sL -w "%{http_code}" http://sample-box-empty-auth.$HOSTNAME:6000 -o /dev/null` 200
 
 # proxy to a server running on a available box (200)
-test `curl -sL -w "%{http_code}" http://sample-box.$HOSTNAME:6000 -o /dev/null` 200
+assert_status `curl -sL -w "%{http_code}" http://sample-box.$HOSTNAME:6000 -o /dev/null` 200
+
+# check if response body contains the tracking code
+response=`curl -sL http://sample-box.$HOSTNAME:6000`
+contains "$response" "$TRACK_URL?box=sample-box&port=6000"
 
 # proxy to a server running on a available box for post requests (200)
-test `curl -sL -w "%{http_code}" --data "param=value" http://sample-box.$HOSTNAME:6000 -o /dev/null` 200
+assert_status `curl -sL -w "%{http_code}" --data "param=value" http://sample-box.$HOSTNAME:6000 -o /dev/null` 200
 
 # give an error if the requested box is not available (503)
-test `curl -sL -w "%{http_code}" http://dont-exist.$HOSTNAME:6000 -o /dev/null` 503
+assert_status `curl -sL -w "%{http_code}" http://dont-exist.$HOSTNAME:6000 -o /dev/null` 503
 
 # give an error if theres no server listening on given port in the proxied box (503)
-test `curl -sL -w "%{http_code}" http://sample-box.$HOSTNAME:6001 -o /dev/null` 503
+assert_status `curl -sL -w "%{http_code}" http://sample-box.$HOSTNAME:6001 -o /dev/null` 503
 
 # give an error if theres no box speicified as a subdomain (503)
-test `curl -sL -w "%{http_code}" http://$HOSTNAME:6000 -o /dev/null` 503
+assert_status `curl -sL -w "%{http_code}" http://$HOSTNAME:6000 -o /dev/null` 503
 
 # request authorization if a box has enabled HTTP Auth and user provided invalid credentials (401)
-test `curl -sL -w "%{http_code}" http://sample-box-auth.$HOSTNAME:6000 -o /dev/null` 401
+assert_status `curl -sL -w "%{http_code}" http://sample-box-auth.$HOSTNAME:6000 -o /dev/null` 401
 
 # should not request authorization if a box has null Auth user name and password (401)
-test `curl -sL -w "%{http_code}" http://sample-box-null-auth.$HOSTNAME:6000 -o /dev/null` 200
+assert_status `curl -sL -w "%{http_code}" http://sample-box-null-auth.$HOSTNAME:6000 -o /dev/null` 200
 
 # proxy to server correctly if a box has enabled HTTP Auth and user provided valid credentials (200)
-test `curl -sL -w "%{http_code}" -u user:123 http://sample-box-auth.$HOSTNAME:6000 -o /dev/null` 200
+assert_status `curl -sL -w "%{http_code}" -u user:123 http://sample-box-auth.$HOSTNAME:6000 -o /dev/null` 200
 
 ## test for the cache invalidation ##
 # make a request first, this will cache the box details
@@ -79,10 +92,10 @@ redis-cli -h $REDIS_HOST -p $REDIS_PORT -n $REDIS_DB hset aio:boxes sample-box-a
 curl -sL http://127.0.0.1:6002/invalidate_cache?id=sample-box-auth -o /dev/null
 
 # old password should give an auth error
-test `curl -sL -w "%{http_code}" -u user:123 http://sample-box-auth.$HOSTNAME:6000 -o /dev/null` 401
+assert_status `curl -sL -w "%{http_code}" -u user:123 http://sample-box-auth.$HOSTNAME:6000 -o /dev/null` 401
 
 # new password should work
-test `curl -sL -w "%{http_code}" -u user:12345 http://sample-box-auth.$HOSTNAME:6000 -o /dev/null` 200
+assert_status `curl -sL -w "%{http_code}" -u user:12345 http://sample-box-auth.$HOSTNAME:6000 -o /dev/null` 200
 
 echo "\nCompleted the tests\n"
 
