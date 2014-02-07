@@ -13,7 +13,7 @@ function get_box(id)
   end
 
   local red = redis:new()
-  red:set_timeout(1000) -- 1 sec
+  red:set_timeout(settings.redis_timeout) -- 1 sec
 
   -- estabilish connection to redis server
   local ok, err = red:connect(settings.redis_host, settings.redis_port)
