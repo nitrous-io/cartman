@@ -2,17 +2,71 @@ package.path = './lib/?.lua;'..package.path
 
 local utils = require 'utils'
 
-local box_name = utils.box_name_from_host(ngx.var.host)
-local custom_proxy_host = ''
+local cache = ngx.shared.cache
 
+function get_box(id)
+  -- try to fetch cached response from shared memory
+  local cached_response = cache:get(id)
+  if cached_response then
+    local box = cjson.decode(cached_response)
+    return box, nil
+  end
+
+  local red = redis:new()
+  red:set_timeout(settings.redis_timeout) -- 1 sec
+
+  -- estabilish connection to redis server
+  local ok, err = red:connect(settings.redis_host, settings.redis_port)
+  if err then
+    ngx.log(ngx.ERR, 'Failed to connect to Redis: ', err)
+    return
+  end
+
+  -- authenticate
+  if settings.redis_password ~= "" then
+    local ok, err = red:auth(settings.redis_password)
+    if err then
+      ngx.log(ngx.ERR, "Failed to authenticate: ", err)
+      return
+    end
+  end
+
+  -- select db
+  local ok, err = red:select(settings.redis_db)
+  if err then
+    ngx.log(ngx.ERR, "Failed to select db: ", err)
+    return
+  end
+
+  -- get box details, finally :)
+  local response, err = red:hget('aio:boxes', id)
+  if response ~= null then
+    cache:set(id, response)
+    local box = cjson.decode(response)
+    return box, nil
+  else
+    return nil, err
+  end
+end
+
+local box_name = utils.box_name_from_host(ngx.var.host)
 local port = ngx.var.server_port
+
+local custom_proxy_host = ''
 
 if box_name then
   local box, err = get_box(box_name)
   if box ~= nil then
+    local boxState = box.containerState
     local username = box.authUsername or cjson.null
     local password = box.authPassword or cjson.null
     local premium = box.premium or cjson.null
+
+    -- exit early if the box is not running
+    if boxState ~= 'running' then
+      ngx.log(ngx.ERR, 'Given box is not running: ', box_name)
+      ngx.exit(ngx.HTTP_SERVICE_UNAVAILABLE)
+    end
 
     -- FIXME: why cant these conditions be merged into utils.valid_auth
     if username ~= cjson.null and password ~= cjson.null then

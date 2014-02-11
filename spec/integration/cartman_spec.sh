@@ -1,9 +1,9 @@
 #!/usr/env bash
 
-REDIS_HOST=127.0.0.1
-REDIS_PORT=6379
-REDIS_DB=5
-HOSTNAME=region.dev-box.local
+# explicitly set the hostname
+HOSTNAME=region.n2odev.com
+
+# Other ENV variables are loaded from .env file.
 
 # clean redis
 echo "Cleaning Redis"
@@ -15,15 +15,18 @@ script/test_server stop
 
 # add entry to redis hash
 echo "Preparing Redis database"
-BOX_DATA="{\"ip\":\"127.0.0.1\",\"name\":\"sample-box\"}"
-BOX_WITH_AUTH_DATA="{\"ip\":\"127.0.0.1\",\"name\":\"sample-box-auth\",\"authUsername\":\"user\",\"authPassword\":\"123\"}"
-BOX_WITH_NULL_AUTH_DATA="{\"ip\":\"127.0.0.1\",\"name\":\"sample-box-null-auth\",\"authUsername\":null,\"authPassword\":null}"
-BOX_WITH_EMPTY_AUTH_DATA="{\"ip\":\"127.0.0.1\",\"name\":\"sample-box-null-auth\",\"authUsername\":\"\",\"authPassword\":\"\"}"
+BOX="{\"ip\":\"127.0.0.1\",\"name\":\"sample-box\",\"containerState\":\"running\"}"
+BOX_WITH_AUTH="{\"ip\":\"127.0.0.1\",\"name\":\"sample-box-auth\",\"authUsername\":\"user\",\"authPassword\":\"123\",\"containerState\":\"running\"}"
+BOX_WITH_NULL_AUTH="{\"ip\":\"127.0.0.1\",\"name\":\"sample-box-null-auth\",\"authUsername\":null,\"authPassword\":null,\"containerState\":\"running\"}"
+BOX_WITH_EMPTY_AUTH="{\"ip\":\"127.0.0.1\",\"name\":\"sample-box-null-auth\",\"authUsername\":\"\",\"authPassword\":\"\",\"containerState\":\"running\"}"
+BOX_WITH_MODIFIED_AUTH="{\"ip\":\"127.0.0.1\",\"name\":\"sample-box-auth\",\"authUsername\":\"user\",\"authPassword\":\"12345\",\"containerState\":\"running\"}"
+STOPPED_BOX="{\"ip\":\"127.0.0.1\",\"name\":\"sample-box-stopped\",\"containerState\":\"stopped\"}"
 
-redis-cli -h $REDIS_HOST -p $REDIS_PORT -n $REDIS_DB hset aio:boxes sample-box "$BOX_DATA"
-redis-cli -h $REDIS_HOST -p $REDIS_PORT -n $REDIS_DB hset aio:boxes sample-box-auth "$BOX_WITH_AUTH_DATA"
-redis-cli -h $REDIS_HOST -p $REDIS_PORT -n $REDIS_DB hset aio:boxes sample-box-null-auth "$BOX_WITH_NULL_AUTH_DATA"
-redis-cli -h $REDIS_HOST -p $REDIS_PORT -n $REDIS_DB hset aio:boxes sample-box-empty-auth "$BOX_WITH_EMPTY_AUTH_DATA"
+redis-cli -h $REDIS_HOST -p $REDIS_PORT -n $REDIS_DB hset aio:boxes sample-box "$BOX"
+redis-cli -h $REDIS_HOST -p $REDIS_PORT -n $REDIS_DB hset aio:boxes sample-box-auth "$BOX_WITH_AUTH"
+redis-cli -h $REDIS_HOST -p $REDIS_PORT -n $REDIS_DB hset aio:boxes sample-box-null-auth "$BOX_WITH_NULL_AUTH"
+redis-cli -h $REDIS_HOST -p $REDIS_PORT -n $REDIS_DB hset aio:boxes sample-box-empty-auth "$BOX_WITH_EMPTY_AUTH"
+redis-cli -h $REDIS_HOST -p $REDIS_PORT -n $REDIS_DB hset aio:boxes sample-box-stopped "$STOPPED_BOX"
 
 # start the sample nginx server with conf
 echo "Starting Nginx\n"
@@ -52,6 +55,9 @@ test `curl -sL -w "%{http_code}" --data "param=value" http://sample-box.$HOSTNAM
 # give an error if the requested box is not available (503)
 test `curl -sL -w "%{http_code}" http://dont-exist.$HOSTNAME:6000 -o /dev/null` 503
 
+# give an error if the requested box is not running (503)
+test `curl -sL -w "%{http_code}" http://sample-box-stopped.$HOSTNAME:6000 -o /dev/null` 503
+
 # give an error if theres no server listening on given port in the proxied box (503)
 test `curl -sL -w "%{http_code}" http://sample-box.$HOSTNAME:6001 -o /dev/null` 503
 
@@ -72,8 +78,7 @@ test `curl -sL -w "%{http_code}" -u user:123 http://sample-box-auth.$HOSTNAME:60
 curl -sL -u user:123 http://sample-box-auth.$HOSTNAME:6000 -o /dev/null
 
 # modify box details in redis
-BOX_WITH_MODIFIED_AUTH_DATA="{\"ip\":\"127.0.0.1\",\"name\":\"sample-box-auth\",\"authUsername\":\"user\",\"authPassword\":\"12345\"}"
-redis-cli -h $REDIS_HOST -p $REDIS_PORT -n $REDIS_DB hset aio:boxes sample-box-auth "$BOX_WITH_MODIFIED_AUTH_DATA"
+redis-cli -h $REDIS_HOST -p $REDIS_PORT -n $REDIS_DB hset aio:boxes sample-box-auth "$BOX_WITH_MODIFIED_AUTH"
 
 # send a request to clear the cached record
 curl -sL http://127.0.0.1:6002/invalidate_cache?id=sample-box-auth -o /dev/null
