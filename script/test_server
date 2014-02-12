@@ -24,7 +24,7 @@ if [ "$1" != "stop" ]; then
     redis_host = '$REDIS_HOST',
     redis_port = $REDIS_PORT,
     redis_password = '$REDIS_PASSWORD',
-    redis_tiemout = $REDIS_TIMEOUT,
+    redis_timeout = $REDIS_TIMEOUT,
     redis_db = $REDIS_DB
   }
 EOF
