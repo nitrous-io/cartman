@@ -27,6 +27,7 @@ redis-cli -h $REDIS_HOST -p $REDIS_PORT -n $REDIS_DB hset aio:boxes sample-box-a
 redis-cli -h $REDIS_HOST -p $REDIS_PORT -n $REDIS_DB hset aio:boxes sample-box-null-auth "$BOX_WITH_NULL_AUTH"
 redis-cli -h $REDIS_HOST -p $REDIS_PORT -n $REDIS_DB hset aio:boxes sample-box-empty-auth "$BOX_WITH_EMPTY_AUTH"
 redis-cli -h $REDIS_HOST -p $REDIS_PORT -n $REDIS_DB hset aio:boxes sample-box-stopped "$STOPPED_BOX"
+redis-cli -h $REDIS_HOST -p $REDIS_PORT -n $REDIS_DB hset aio:domains wtf.com sample-box
 
 # start the sample nginx server with conf
 echo "Starting Nginx\n"
@@ -88,6 +89,9 @@ test `curl -sL -w "%{http_code}" -u user:123 http://sample-box-auth.$HOSTNAME:60
 
 # new password should work
 test `curl -sL -w "%{http_code}" -u user:12345 http://sample-box-auth.$HOSTNAME:6000 -o /dev/null` 200
+
+# custom domain should work
+test `curl -sL -w "%{http_code}" -u http://wtf.com:6000 -o /dev/null` 200
 
 echo "\nCompleted the tests\n"
 
