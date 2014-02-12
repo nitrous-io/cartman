@@ -2,32 +2,4 @@
 [ -n "$DEBUG" ] && set -o xtrace
 shopt -s nullglob
 
-export $(cat .env)
 
-if [ -f logs/nginx.pid ]
-  then
-    kill -s QUIT $(cat logs/nginx.pid)
-fi
-
-CONFIG="config/nginx.conf"
-
-if [ "$1" != "stop" ]; then
-  while getopts ":c:" option; do
-    case "${option}" in
-      c) CONFIG=${OPTARG};;
-    esac
-  done
-
-  # prepare Lua config file
-  cat << EOF > settings.lua
-  return {
-    redis_host = '$REDIS_HOST',
-    redis_port = $REDIS_PORT,
-    redis_password = '$REDIS_PASSWORD',
-    redis_timeout = $REDIS_TIMEOUT,
-    redis_db = $REDIS_DB
-  }
-EOF
-
-  nx -p `pwd` -c $CONFIG
-fi

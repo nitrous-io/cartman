@@ -1,4 +1,7 @@
-test:
-	@./script/test
+prepare:
+	@sudo docker build -t nitrousio/cartman-test .
 
-.PHONY: test
+test:
+	@./script/run_test
+
+.PHONY: test prepare
