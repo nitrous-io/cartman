@@ -15,15 +15,19 @@ script/test_server stop
 
 # add entry to redis hash
 echo "Preparing Redis database"
-BOX_DATA="{\"ip\":\"127.0.0.1\",\"name\":\"sample-box\"}"
-BOX_WITH_AUTH_DATA="{\"ip\":\"127.0.0.1\",\"name\":\"sample-box-auth\",\"authUsername\":\"user\",\"authPassword\":\"123\"}"
-BOX_WITH_NULL_AUTH_DATA="{\"ip\":\"127.0.0.1\",\"name\":\"sample-box-null-auth\",\"authUsername\":null,\"authPassword\":null}"
-BOX_WITH_EMPTY_AUTH_DATA="{\"ip\":\"127.0.0.1\",\"name\":\"sample-box-null-auth\",\"authUsername\":\"\",\"authPassword\":\"\"}"
+BOX="{\"ip\":\"127.0.0.1\",\"name\":\"sample-box\",\"containerState\":\"running\"}"
+BOX_WITH_AUTH="{\"ip\":\"127.0.0.1\",\"name\":\"sample-box-auth\",\"authUsername\":\"user\",\"authPassword\":\"123\",\"containerState\":\"running\"}"
+BOX_WITH_NULL_AUTH="{\"ip\":\"127.0.0.1\",\"name\":\"sample-box-null-auth\",\"authUsername\":null,\"authPassword\":null,\"containerState\":\"running\"}"
+BOX_WITH_EMPTY_AUTH="{\"ip\":\"127.0.0.1\",\"name\":\"sample-box-null-auth\",\"authUsername\":\"\",\"authPassword\":\"\",\"containerState\":\"running\"}"
+BOX_WITH_MODIFIED_AUTH="{\"ip\":\"127.0.0.1\",\"name\":\"sample-box-auth\",\"authUsername\":\"user\",\"authPassword\":\"12345\",\"containerState\":\"running\"}"
+STOPPED_BOX="{\"ip\":\"127.0.0.1\",\"name\":\"sample-box-stopped\",\"containerState\":\"stopped\"}"
 
-redis-cli -h $REDIS_HOST -p $REDIS_PORT -n $REDIS_DB hset aio:boxes sample-box "$BOX_DATA"
-redis-cli -h $REDIS_HOST -p $REDIS_PORT -n $REDIS_DB hset aio:boxes sample-box-auth "$BOX_WITH_AUTH_DATA"
-redis-cli -h $REDIS_HOST -p $REDIS_PORT -n $REDIS_DB hset aio:boxes sample-box-null-auth "$BOX_WITH_NULL_AUTH_DATA"
-redis-cli -h $REDIS_HOST -p $REDIS_PORT -n $REDIS_DB hset aio:boxes sample-box-empty-auth "$BOX_WITH_EMPTY_AUTH_DATA"
+redis-cli -h $REDIS_HOST -p $REDIS_PORT -n $REDIS_DB hset aio:boxes sample-box "$BOX"
+redis-cli -h $REDIS_HOST -p $REDIS_PORT -n $REDIS_DB hset aio:boxes sample-box-auth "$BOX_WITH_AUTH"
+redis-cli -h $REDIS_HOST -p $REDIS_PORT -n $REDIS_DB hset aio:boxes sample-box-null-auth "$BOX_WITH_NULL_AUTH"
+redis-cli -h $REDIS_HOST -p $REDIS_PORT -n $REDIS_DB hset aio:boxes sample-box-empty-auth "$BOX_WITH_EMPTY_AUTH"
+redis-cli -h $REDIS_HOST -p $REDIS_PORT -n $REDIS_DB hset aio:boxes sample-box-stopped "$STOPPED_BOX"
+redis-cli -h $REDIS_HOST -p $REDIS_PORT -n $REDIS_DB hset aio:domains wtf.com sample-box
 
 # start the sample nginx server with conf
 echo "Starting Nginx\n"
@@ -83,6 +87,9 @@ test `curl -sL -w "%{http_code}" -u user:123 http://sample-box-auth.$HOSTNAME:60
 
 # new password should work
 test `curl -sL -w "%{http_code}" -u user:12345 http://sample-box-auth.$HOSTNAME:6000 -o /dev/null` 200
+
+# custom domain should work
+test `curl -sL -w "%{http_code}" -u http://wtf.com:6000 -o /dev/null` 200
 
 echo "\nCompleted the tests\n"
 
