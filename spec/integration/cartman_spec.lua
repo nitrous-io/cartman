@@ -200,4 +200,31 @@ describe('Cartman', function()
       assert.same(200, status)
     end)
   end)
+
+  describe("custom domains", function()
+    setup(function()
+      local payload = cjson.encode({ ip = "127.0.0.1",
+                                     name = "sample-box",
+                                     containerState = "running"
+                                   })
+      redis_client:hset('aio:boxes', 'sample-box', payload)
+
+      redis_client:hset('aio:domains', 'wtf.local', 'sample-box')
+    end)
+
+    teardown(function()
+      redis_client:flushdb()
+    end)
+
+    it("proxies requests for registered custom domains", function()
+      response, status = http.request("http://wtf.local:6000")
+      assert.same(200, status)
+    end)
+
+    it("responds with a 503 status for requests with non-registered custom domains", function()
+      response, status = http.request("http://another.local:6000")
+      assert.same(503, status)
+    end)
+
+  end)
 end)
