@@ -58,15 +58,6 @@ apt-get install libreadline-dev libncurses5-dev libpcre3-dev libssl-dev perl mak
 
 ### Testing
 
-* Install [busted](http://olivinelabs.com/busted/)
 ```
-  apt-get install luarocks
-  luarocks install busted
-```
-
-* You may need to install `curl` too: `apt-get install curl`
-
-* Then on the project's root, run:
-```
-  script/test
+  make test
 ```

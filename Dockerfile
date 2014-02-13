@@ -20,6 +20,9 @@ RUN apt-get -yy install \
   wget
 
 RUN luarocks install busted
+RUN luarocks install luasocket
+RUN luarocks install lua-cjson
+RUN luarocks install redis-lua
 
 RUN wget $OPENRESTY_URL \
   && tar -xzvf ngx_openresty-$OPENRESTY_VERSION.tar.gz \
