@@ -33,4 +33,3 @@ CONFIG="spec/integration/nginx.conf"
 nx -p `pwd` -c $CONFIG
 
 busted
-sh spec/integration/cartman_spec.sh
