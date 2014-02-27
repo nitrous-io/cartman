@@ -2,7 +2,6 @@
 lib-cov/
 tmp/
 pids/
-logs/
 results/
 node_modules/
 *.swp
@@ -52,3 +51,7 @@ tramp
 
 # Redis
 *.rdb
+
+# Logs
+*.pid
+*.log
