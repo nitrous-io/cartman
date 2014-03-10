@@ -4,5 +4,33 @@ shopt -s nullglob
 
 export $(cat .env)
 
+# prepare Lua config file
+cat << EOF > settings.lua
+return {
+  redis_host = '127.0.0.1',
+  redis_port = 6379,
+  redis_password = '',
+  redis_db = 0
+}
+EOF
+
+
+# /etc/hosts values
+echo 'address="/sample-box-empty-auth.region.n2odev.com/127.0.0.1"' >> /etc/dnsmasq.d/0hosts
+echo 'address="/sample-box.region.n2odev.com/127.0.0.1"' >> /etc/dnsmasq.d/0hosts
+echo 'address="/dont-exist.region.n2odev.com/127.0.0.1"' >> /etc/dnsmasq.d/0hosts
+echo 'address="/sample-box-stopped.n2odev.com/127.0.0.1"' >> /etc/dnsmasq.d/0hosts
+echo 'address="/region.n2odev.com/127.0.0.1"' >> /etc/dnsmasq.d/0hosts
+echo 'address="/sample-box-null-auth.region.n2odev.com/127.0.0.1"' >> /etc/dnsmasq.d/0hosts
+echo 'address="/sample-box-auth.region.n2odev.com/127.0.0.1"' >> /etc/dnsmasq.d/0hosts
+echo 'address="/wtf.local/127.0.0.1"' >> /etc/dnsmasq.d/0hosts
+echo 'address="/another.local/127.0.0.1"' >> /etc/dnsmasq.d/0hosts
+
+/etc/init.d/redis-server start
+/etc/init.d/dnsmasq start
+
+CONFIG="spec/integration/nginx.conf"
+nx -p `pwd` -c $CONFIG
+
 busted
 sh spec/integration/cartman_spec.sh

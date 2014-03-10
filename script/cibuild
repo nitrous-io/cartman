@@ -1,0 +1,10 @@
+#!/bin/bash
+# run this with sudo in CI environment
+
+sudo docker build -t nitrousio/cartman-test .
+
+sudo docker run \
+  -v $(pwd):/var/cartman \
+  -w /var/cartman \
+  -dns 127.0.0.1 \
+  nitrousio/cartman-test ./script/test
