@@ -44,7 +44,6 @@ function get_box_from_id(red, id)
 
   -- get box details, finally :)
   local response, err = red:hget('aio:boxes', id)
-  ngx.log(ngx.ERR, "get_box ", response)
   if response ~= null then
     cache:set(id, response)
     local box = cjson.decode(response)
