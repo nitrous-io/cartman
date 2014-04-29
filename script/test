@@ -25,6 +25,7 @@ echo 'address="/sample-box-null-auth.region.n2odev.com/127.0.0.1"' >> /etc/dnsma
 echo 'address="/sample-box-auth.region.n2odev.com/127.0.0.1"' >> /etc/dnsmasq.d/0hosts
 echo 'address="/wtf.local/127.0.0.1"' >> /etc/dnsmasq.d/0hosts
 echo 'address="/another.local/127.0.0.1"' >> /etc/dnsmasq.d/0hosts
+echo 'address="/sample-box.another.local/127.0.0.1"' >> /etc/dnsmasq.d/0hosts
 
 /etc/init.d/redis-server start
 /etc/init.d/dnsmasq start

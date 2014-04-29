@@ -38,6 +38,9 @@ test () {
   fi
 }
 
+echo "proxy to a box that has DNS mapped to the current host"
+test `curl -sL -w "%{http_code}" http://sample-box.another.local:6000 -o /dev/null` 200
+
 echo "proxy to a server that has empty auth username and password"
 test `curl -sL -w "%{http_code}" http://sample-box-empty-auth.$HOSTNAME:6000 -o /dev/null` 200
 
