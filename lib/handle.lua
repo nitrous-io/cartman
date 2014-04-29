@@ -53,6 +53,15 @@ function get_box_from_id(red, id)
   end
 end
 
+function try_to_get_box(red, host, subdomain_level)
+  id = utils.box_name_from_host(host, subdomain_level)
+  if id then
+    return get_box_from_id(red, id)
+  else
+    return nil, "unknown host: " .. host .. " ,subdomain: " .. subdomain_level
+  end
+end
+
 function get_box_from_host(host)
   local red = get_redis_client()
   if red == nil then
@@ -66,11 +75,14 @@ function get_box_from_host(host)
   end
 
   -- if we cant find the id, infer it from the host
-  id = utils.box_name_from_host(ngx.var.host)
-  if id then
-    return get_box_from_id(red, id)
+  -- first we infer the 2nd level subdomain i.e box-name.use1.nitrousbox.com
+  -- if not found, inter the 1st level subdomain i.e box-name.nitrousapp.com
+  -- (approriate when the domain CNAME/A to the boxhost)
+  local box, err = try_to_get_box(red, ngx.var.host, 3)
+  if box == nil then
+    box, err = try_to_get_box(red, ngx.var.host, 2)
   end
-  return nil, "unknown host: " .. host
+  return box, err
 end
 
 local box, err = get_box_from_host(ngx.var.host)
