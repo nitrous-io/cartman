@@ -3,5 +3,6 @@
 sudo docker run \
   -v $(pwd):/var/cartman \
   -w /var/cartman \
-  -dns 127.0.0.1 \
+  --dns 127.0.0.1 \
+  --privileged \
   nitrousio/cartman-test ./script/test

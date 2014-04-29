@@ -4,6 +4,8 @@ ENV OPENRESTY_VERSION 1.5.8.1
 ENV OPENRESTY_URL http://openresty.org/download/ngx_openresty-1.5.8.1.tar.gz
 
 RUN echo "deb http://archive.ubuntu.com/ubuntu precise main universe" > /etc/apt/sources.list
+RUN echo "deb http://archive.ubuntu.com/ubuntu precise-updates main universe" >> /etc/apt/sources.list
+RUN echo "deb http://archive.ubuntu.com/ubuntu precise-security main universe" >> /etc/apt/sources.list
 RUN apt-get update
 
 RUN apt-get -yy install \
