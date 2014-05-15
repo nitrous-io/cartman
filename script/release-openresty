@@ -53,7 +53,6 @@ bundle_ubuntu() {
     --provides openresty \
     --replaces openresty \
     --config-files /etc/logrotate.d/nginx \
-    --config-files /etc/nginx/conf.d/default.conf \
     --config-files /etc/nginx/fastcgi.conf.default \
     --config-files /etc/nginx/win-utf \
     --config-files /etc/nginx/fastcgi_params \
