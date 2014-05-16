@@ -58,3 +58,10 @@ tramp
 
 # Build
 build
+
+# s3cfg
+.s3cfg
+
+# apt-nitrous-gpg
+apt-nitrous-gpg/
+*.gpg
