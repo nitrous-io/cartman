@@ -1,20 +1,20 @@
 #!/bin/bash
 
-DEST="$CARTMAN_DIR"
 OPENRESTY_DIR="$OPENRESTY_DIR"
+PKGNAME="openresty"
 PKGVERSION="$OPENRESTY_VERSION"
 VERSION="$OPENRESTY_VERSION"
 
-PACKAGE_ARCHITECTURE="$(dpkg-architecture -qDEB_HOST_ARCH)"
 PACKAGE_URL="http://openresty.org/"
-PACKAGE_MAINTAINER="eng@nitrous.io"
 PACKAGE_DESCRIPTION="OpenResty for Nitrous.IO boxhost"
 PACKAGE_LICENSE="BSD"
 
-BUILD=$DEST/build
+CURRENT_DIR=$(dirname "$BASH_SOURCE[0]")
+source $CURRENT_DIR/release-helper
+
 FILES=$DEST/files/openresty
 
-bundle_ubuntu() {
+bundle_openresty() {
   rm -rf $BUILD
   mkdir -p $BUILD
 
@@ -39,7 +39,7 @@ bundle_ubuntu() {
   fpm \
     -s dir \
     -C $BUILD \
-    --name openresty-$PKGVERSION \
+    --name $PKGNAME-$PKGVERSION \
     --version $PKGVERSION \
     --before-install $FILES/control/preinst \
     --after-install $FILES/control/postinst \
@@ -50,8 +50,8 @@ bundle_ubuntu() {
     --description "$PACKAGE_DESCRIPTION" \
     --maintainer "$PACKAGE_MAINTAINER" \
     --conflicts nginx \
-    --provides openresty \
-    --replaces openresty \
+    --provides $PKGNAME \
+    --replaces $PKGNAME \
     --config-files /etc/logrotate.d/nginx \
     --config-files /etc/nginx/fastcgi.conf.default \
     --config-files /etc/nginx/win-utf \
@@ -70,7 +70,8 @@ bundle_ubuntu() {
 
   # create empty openresty wrapper package
   fpm -s empty \
-    --name openresty --version $PKGVERSION \
+    --name $PKGNAME \
+	  --version $PKGVERSION \
     --architecture "$PACKAGE_ARCHITECTURE" \
     --depends openresty-$PKGVERSION \
     --description "$PACKAGE_DESCRIPTION" \
@@ -87,4 +88,4 @@ bundle_ubuntu() {
   rm -rf $BUILD/var
 }
 
-bundle_ubuntu
+bundle_openresty
