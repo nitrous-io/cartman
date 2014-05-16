@@ -7,8 +7,9 @@ RUN echo "deb http://archive.ubuntu.com/ubuntu precise main universe" > /etc/apt
 RUN echo "deb http://archive.ubuntu.com/ubuntu precise-updates main universe" >> /etc/apt/sources.list
 RUN echo "deb http://archive.ubuntu.com/ubuntu precise-security main universe" >> /etc/apt/sources.list
 
-RUN apt-get update && apt-get -yy install \
-  build-essential \
+RUN apt-get update && apt-get -yy install build-essential
+
+RUN apt-get install -yy \
   libgd2-xpm-dev \
   libncurses5-dev \
   libpcre3-dev \
@@ -18,11 +19,12 @@ RUN apt-get update && apt-get -yy install \
   libxslt1-dev \
   make \
   perl \
+  wget
+
+RUN apt-get install -yy \
   reprepro \
   ruby1.9.1 \
-  ruby1.9.1-dev \
-  s3cmd \
-  wget
+  ruby1.9.1-dev 
 
 RUN gem install --no-rdoc --no-ri fpm --version 1.0.2
 
