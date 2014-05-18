@@ -15,6 +15,9 @@ release-cartman: build-release
 		 /opt/cartman/script/release-cartman
 .PHONY: release-cartman
 
+release-all: build-release release-openresty release-cartman
+.PHONY: release-all
+
 test:
 	@./script/run_test
 
