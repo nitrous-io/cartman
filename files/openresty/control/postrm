@@ -4,10 +4,10 @@ set -e
 
 case "$1" in
     purge)
-        rm -rf /var/cache/nginx /var/log/nginx /etc/nginx
+        rm -rf /var/cache/nginx /var/log/nginx /etc/nginx /var/lib/nginx
         ;;
     remove)
-        rm -rf /var/cache/nginx /var/log/nginx
+        rm -rf /var/cache/nginx /var/log/nginx /var/lib/nginx
         ;;
     remove|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
         ;;

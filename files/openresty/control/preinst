@@ -23,9 +23,14 @@ addnginxuser() {
     fi
 }
 
+create_lib_dir() {
+  [[ ! -d /var/lib/nginx ]] && mkdir -p /var/lib/nginx
+}
+
 case "$1" in
     install)
         addnginxuser
+				create_lib_dir
         cat <<BANNER
 ----------------------------------------------------------------------
 
