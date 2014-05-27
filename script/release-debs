@@ -3,6 +3,7 @@
 BUCKET="apt.nitrous.io"
 LOCALREPO="$HOME/$BUCKET"
 
+DISTS="precise trusty"
 N2O_PP=`cat ~/.gpg/nitrous.passphrase.gpg`
 N2O_KG=`cat ~/.gpg/nitrous.keygrip.gpg`
 
@@ -34,11 +35,15 @@ fi
 
 /usr/lib/gnupg2/gpg-preset-passphrase -P $N2O_PP --preset $N2O_KG
 
-for P in $(find ./build -name "${PKGNAME}*.deb"); do
-  DEB=`echo $P | awk -F/ '{ print $NF }' | awk -F_ '{ print $1}'`
-  reprepro -b $LOCALREPO remove precise $DEB
+for DIST in $DISTS; do
+	for P in $(find ./build -name "${PKGNAME}*.deb"); do
+		DEB=`echo $P | awk -F/ '{ print $NF }' | awk -F_ '{ print $1}'`
+		reprepro -b $LOCALREPO remove $DIST $DEB
+	done
 done
 
-for DEB in $(find ./build -name "${PKGNAME}*.deb"); do
-  reprepro -b $LOCALREPO includedeb precise $DEB
+for DIST in $DISTS; do
+	for DEB in $(find ./build -name "${PKGNAME}*.deb"); do
+		reprepro -b $LOCALREPO includedeb $DIST $DEB
+	done
 done
