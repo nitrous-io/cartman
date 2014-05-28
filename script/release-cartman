@@ -12,9 +12,8 @@ source $CURRENT_DIR/release-helper
 FILES=$DEST/files/cartman
 
 bundle_cartman() {
-  rm -rf $BUILD
-  mkdir -p $BUILD
-
+  remove_debs
+	
   # create directories
   mkdir -p $BUILD/etc/nginx/conf.d
   mkdir -p $BUILD/var/action/cartman

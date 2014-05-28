@@ -15,8 +15,7 @@ source $CURRENT_DIR/release-helper
 FILES=$DEST/files/openresty
 
 bundle_openresty() {
-  rm -rf $BUILD
-  mkdir -p $BUILD
+  remove_debs
 
   # install openresty into BUILD
   cd $OPENRESTY_DIR && make install DESTDIR=$BUILD
