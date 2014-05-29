@@ -13,3 +13,7 @@ META_DEBFILE="${PKGNAME}_${PKGVERSION}_${PACKAGE_ARCHITECTURE}.deb"
 remove_debs() {
   rm -f $BUILD/$PKGNAME*.deb
 }
+
+chmod_debs() {
+	chmod 755 $BUILD/$PKGNAME*.deb
+}

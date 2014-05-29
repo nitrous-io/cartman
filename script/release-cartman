@@ -67,3 +67,4 @@ bundle_cartman() {
 }
 
 bundle_cartman
+chmod_debs

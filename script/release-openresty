@@ -88,3 +88,4 @@ bundle_openresty() {
 }
 
 bundle_openresty
+chmod_debs
