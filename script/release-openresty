@@ -1,0 +1,91 @@
+#!/bin/bash
+
+OPENRESTY_DIR="$OPENRESTY_DIR"
+PKGNAME="openresty"
+PKGVERSION="$OPENRESTY_VERSION"
+VERSION="$OPENRESTY_VERSION"
+
+PACKAGE_URL="http://openresty.org/"
+PACKAGE_DESCRIPTION="OpenResty for Nitrous.IO boxhost"
+PACKAGE_LICENSE="BSD"
+
+CURRENT_DIR=$(dirname "$BASH_SOURCE[0]")
+source $CURRENT_DIR/release-helper
+
+FILES=$DEST/files/openresty
+
+bundle_openresty() {
+  remove_debs
+
+  # install openresty into BUILD
+  cd $OPENRESTY_DIR && make install DESTDIR=$BUILD
+
+  # install conf.d
+  mkdir -p $BUILD/etc/nginx/conf.d
+
+  # include our init and logrotate scripts
+  install -m 0644 -D $FILES/data/etc/init.d/nginx $BUILD/etc/init.d/nginx
+  install -m 0644 -D $FILES/data/etc/init/nginx.conf $BUILD/etc/init/nginx.conf
+  install -m 0644 -D $FILES/data/etc/logrotate.d/nginx $BUILD/etc/logrotate.d/nginx
+
+  # install our nginx configuration
+  install -m 0644 -D $FILES/data/etc/nginx/nginx.conf $BUILD/etc/nginx/nginx.conf
+  install -m 0644 -D $FILES/data/etc/nginx/conf.d/default.conf $BUILD/etc/nginx/conf.d/default.conf
+
+  (
+  cd $BUILD
+
+  fpm \
+    -s dir \
+    -C $BUILD \
+    --name $PKGNAME-$PKGVERSION \
+    --version $PKGVERSION \
+    --before-install $FILES/control/preinst \
+    --after-install $FILES/control/postinst \
+    --before-remove $FILES/control/prerm \
+    --after-remove $FILES/control/postrm \
+    --architecture "$PACKAGE_ARCHITECTURE" \
+    --prefix / \
+    --description "$PACKAGE_DESCRIPTION" \
+    --maintainer "$PACKAGE_MAINTAINER" \
+    --conflicts nginx \
+    --provides $PKGNAME \
+    --replaces $PKGNAME \
+    --config-files /etc/logrotate.d/nginx \
+    --config-files /etc/nginx/fastcgi.conf.default \
+    --config-files /etc/nginx/win-utf \
+    --config-files /etc/nginx/fastcgi_params \
+    --config-files /etc/nginx/nginx.conf \
+    --config-files /etc/nginx/koi-win \
+    --config-files /etc/nginx/koi-utf \
+    --config-files /etc/nginx/uwsgi_params \
+    --config-files /etc/nginx/mime.types \
+    --config-files /etc/nginx/scgi_params \
+    --config-files /etc/nginx/fastcgi.conf \
+    --config-files /etc/init.d/nginx \
+    --config-files /etc/init/nginx.conf \
+    --deb-compression gz \
+    -t deb .
+
+  # create empty openresty wrapper package
+  fpm -s empty \
+    --name $PKGNAME \
+	  --version $PKGVERSION \
+    --architecture "$PACKAGE_ARCHITECTURE" \
+    --depends openresty-$PKGVERSION \
+    --description "$PACKAGE_DESCRIPTION" \
+    --maintainer "$PACKAGE_MAINTAINER" \
+    --url "$PACKAGE_URL" \
+    --license "$PACKAGE_LICENSE" \
+    --deb-compression gz \
+    -t deb
+  )
+
+  # cleanup the build directory
+  rm -rf $BUILD/etc
+  rm -rf $BUILD/usr
+  rm -rf $BUILD/var
+}
+
+bundle_openresty
+chmod_debs

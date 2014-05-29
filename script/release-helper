@@ -1,0 +1,19 @@
+#!/bin/bash
+
+DEST=$CARTMAN_DIR
+
+PACKAGE_ARCHITECTURE="$(dpkg-architecture -qDEB_HOST_ARCH)"
+PACKAGE_MAINTAINER="eng@nitrous.io"
+
+BUILD=$DEST/build
+
+BASE_DEBFILE="${PKGNAME}-${PKGVERSION}_${PKGVERSION}_${PACKAGE_ARCHITECTURE}.deb"
+META_DEBFILE="${PKGNAME}_${PKGVERSION}_${PACKAGE_ARCHITECTURE}.deb"
+
+remove_debs() {
+  rm -f $BUILD/$PKGNAME*.deb
+}
+
+chmod_debs() {
+	chmod 755 $BUILD/$PKGNAME*.deb
+}

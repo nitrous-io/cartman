@@ -1,0 +1,8 @@
+#! /bin/sh
+# preinst script for nginx
+
+set -e
+
+mkdir -p /var/action/cartman/
+
+exit 0

@@ -1,0 +1,70 @@
+#!/bin/bash
+
+PKGNAME="cartman"
+PKGVERSION="1.0.0"
+PACKAGE_URL="http://nitrous.io/"
+PACKAGE_DESCRIPTION="Respect my authoritah"
+PACKAGE_LICENSE="Private"
+
+CURRENT_DIR=$(dirname "$BASH_SOURCE[0]")
+source $CURRENT_DIR/release-helper
+
+FILES=$DEST/files/cartman
+
+bundle_cartman() {
+  remove_debs
+	
+  # create directories
+  mkdir -p $BUILD/etc/nginx/conf.d
+  mkdir -p $BUILD/var/action/cartman
+	
+  # install cartman libraries
+  cp -axr $CARTMAN_DIR/lib $BUILD/var/action/cartman	
+
+  # install our cartman configuration
+  cp -axr $FILES/data/etc/nginx/cartman-common.conf $BUILD/etc/nginx/cartman-common.conf
+  cp -axr $FILES/data/etc/nginx/conf.d/cartman.conf $BUILD/etc/nginx/conf.d/cartman.conf
+
+  (
+  cd $BUILD
+
+  fpm \
+    -s dir \
+    -C $BUILD \
+    --name $PKGNAME-$PKGVERSION \
+    --version $PKGVERSION \
+    --architecture "$PACKAGE_ARCHITECTURE" \
+    --prefix / \
+    --description "$PACKAGE_DESCRIPTION" \
+    --maintainer "$PACKAGE_MAINTAINER" \
+    --provides $PKGNAME \
+    --replaces $PKGNAME \
+    --depends openresty \
+    --before-install $FILES/control/preinst \
+    --config-files /etc/nginx/cartman-common.conf \
+    --config-files /etc/nginx/conf.d/cartman.conf \
+    --deb-compression gz \
+    -t deb .
+
+  fpm -s empty \
+    --name $PKGNAME \
+    --version $PKGVERSION \
+    --architecture "$PACKAGE_ARCHITECTURE" \
+    --depends cartman-$PKGVERSION \
+    --description "$PACKAGE_DESCRIPTION" \
+    --maintainer "$PACKAGE_MAINTAINER" \
+    --url "$PACKAGE_URL" \
+    --license "$PACKAGE_LICENSE" \
+    --deb-compression gz \
+    -t deb
+  )
+
+  # cleanup the build directory
+  rm -rf $BUILD/etc
+  rm -rf $BUILD/usr
+  rm -rf $BUILD/var
+  rm -rf $BUILD/lib
+}
+
+bundle_cartman
+chmod_debs
