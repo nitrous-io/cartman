@@ -83,6 +83,12 @@ if box ~= nil then
   local password = box.authPassword or cjson.null
   local premium = box.premium or cjson.null
 
+  -- exit early if the box is not running
+  if boxState ~= 'running' then
+    ngx.log(ngx.ERR, 'Given box is not running: ', box_name)
+    ngx.exit(ngx.HTTP_SERVICE_UNAVAILABLE)
+  end
+
   -- FIXME: why cant these conditions be merged into utils.valid_auth
   if username ~= cjson.null and password ~= cjson.null then
     -- if the username and password be empty string, as using a value as both

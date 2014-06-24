@@ -50,6 +50,9 @@ test `curl -sL -w "%{http_code}" --data "param=value" http://sample-box.$HOSTNAM
 echo "give an error if the requested box is not available (503)"
 test `curl -sL -w "%{http_code}" http://dont-exist.$HOSTNAME:6000 -o /dev/null` 503
 
+# give an error if the requested box is not running (503)
+test `curl -sL -w "%{http_code}" http://sample-box-stopped.$HOSTNAME:6000 -o /dev/null` 503
+
 # give an error if theres no server listening on given port in the proxied box (503)
 test `curl -sL -w "%{http_code}" http://sample-box.$HOSTNAME:6001 -o /dev/null` 503
 
